@@ -4,6 +4,8 @@ import sys
 sys.stdout.reconfigure(encoding='utf-8')
 from datetime import datetime
 
+from flask import Flask, jsonify
+from flask_cors import CORS
 from dotenv import load_dotenv
 
 # Import from YOUR existing files
@@ -193,6 +195,31 @@ Body: {body}
             print(f"❌ WhatsApp error: {e}")
 
     print("\n🏁 Orchestrator finished.")
+
+app = Flask(__name__)
+CORS(app)
+
+@app.route('/')
+def health_check():
+    return jsonify({"status": "Life OS Backend is online!"})
+
+@app.route('/api/suggestions')
+def suggestions():
+    return jsonify({
+        "suggestions": [
+            "Process my recent emails",
+            "Update calendar from emails",
+            "Send WhatsApp summary"
+        ]
+    })
+
+@app.route('/run', methods=['GET', 'POST'])
+def trigger_workflow():
+    try:
+        main()
+        return jsonify({"status": "success", "message": "Workflow executed successfully."})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
     main()
