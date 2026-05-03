@@ -1,0 +1,83 @@
+.hero-section {
+  flex-direction: column;
+  text-align: center;
+  padding: 6rem 2rem 4rem;
+  background: radial-gradient(ellipse at center, #0d1525 0%, #05080f 70%);
+}
+.hero-badge {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 4px;
+  color: var(--accent-green);
+  border: 1px solid #1a3a2a;
+  padding: 0.5rem 1.2rem;
+  border-radius: var(--radius-full);
+  margin-bottom: 2rem;
+  animation: fadeInUp 0.8s ease;
+}
+.hero-title {
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  animation: fadeInUp 0.8s ease 0.1s both;
+}
+.hero-title .highlight {
+  background: linear-gradient(135deg, #00e676, #00c853, #69f0ae);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-subtitle {
+  font-size: 1.15rem;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin-bottom: 2.5rem;
+  animation: fadeInUp 0.8s ease 0.2s both;
+}
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  animation: fadeInUp 0.8s ease 0.3s both;
+}
+.hero-terminal {
+  margin-top: 3rem;
+  background: #0a0f16;
+  border: 1px solid #1a2a3a;
+  border-radius: var(--radius-md);
+  padding: 1.2rem 1.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: #7a8a9a;
+  max-width: 500px;
+  width: 100%;
+  animation: fadeInUp 0.8s ease 0.4s both;
+  text-align: left;
+}
+.hero-terminal .prompt { color: var(--accent-green); }
+.hero-terminal .cursor-blink {
+  display: inline-block;
+  width: 8px; height: 16px;
+  background: var(--accent-green);
+  animation: blink 1s step-end infinite;
+  vertical-align: text-bottom;
+  margin-left: 2px;
+}
+.hero-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.particle {
+  position: absolute;
+  background: rgba(255,255,255,0.3);
+  border-radius: 50%;
+}
+@media (max-width: 600px) {
+  .hero-section { padding: 5rem 1rem 3rem; }
+  .hero-terminal { font-size: 0.7rem; padding: 0.8rem 1rem; }
+}

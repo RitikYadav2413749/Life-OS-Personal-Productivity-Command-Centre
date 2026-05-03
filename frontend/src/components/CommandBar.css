@@ -1,0 +1,115 @@
+/* Command Bar Styles */
+
+.command-bar {
+  position: relative;
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  border: 1px solid var(--glass-border);
+  transition: all var(--duration-normal) var(--ease-out-expo);
+  overflow: hidden;
+}
+
+.command-bar.focused {
+  border-color: var(--color-primary);
+  box-shadow: var(--glow-primary);
+  background: var(--bg-surface-hover);
+}
+
+.command-bar.executing {
+  border-color: rgba(124, 58, 237, 0.4);
+}
+
+.command-bar-inner {
+  display: flex;
+  align-items: center;
+  padding: var(--space-3) var(--space-4);
+  gap: var(--space-3);
+}
+
+.command-bar-icon {
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.command-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: var(--font-base);
+  line-height: 1.5;
+}
+
+.command-input::placeholder {
+  color: var(--text-muted);
+}
+
+.command-input:disabled {
+  opacity: 0.5;
+}
+
+.command-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.command-shortcut {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+
+.btn-icon:hover {
+  background: var(--bg-surface-hover);
+  color: var(--text-primary);
+}
+
+.btn-icon.listening {
+  color: var(--color-notify);
+  animation: pulse-glow 1s ease-in-out infinite;
+}
+
+.btn-icon.submit {
+  color: var(--color-primary);
+}
+
+.btn-icon:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.command-bar-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  background: linear-gradient(90deg, var(--color-primary), #a855f7, var(--color-email));
+  transform-origin: left;
+}

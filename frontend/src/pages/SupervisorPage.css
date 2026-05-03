@@ -1,0 +1,153 @@
+.supervisor-page { padding-top: 80px; }
+.supervisor-section {
+  background: radial-gradient(ellipse at center, #0d1528 0%, #05080f 70%);
+  text-align: center;
+  flex-direction: column;
+  gap: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.supervisor-orb {
+  position: relative;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #1a3a5a, #0a1525);
+  border: 2px solid rgba(100,180,255,0.4);
+  box-shadow: 0 0 80px rgba(66,133,244,0.3), 0 0 160px rgba(66,133,244,0.15), inset 0 0 40px rgba(100,180,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  animation: orb-float 5s ease-in-out infinite;
+}
+.supervisor-orb-inner {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 3px;
+  color: #8ab4f8;
+  text-align: center;
+}
+.supervisor-connections {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 600px; height: 600px;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  pointer-events: none;
+}
+.connection-line {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 2px;
+  background: linear-gradient(to bottom, rgba(100,180,255,0.6), transparent);
+  transform-origin: top center;
+  opacity: 0.5;
+  animation: conn-pulse 3s ease-in-out infinite;
+}
+.satellite-icon {
+  position: absolute;
+  width: 50px; height: 50px;
+  border-radius: 14px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.7rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  animation: satellite-orbit 8s ease-in-out infinite;
+  pointer-events: auto;
+  cursor: pointer;
+  top: 50%; left: 50%;
+  margin: -25px 0 0 -25px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.satellite-icon:hover {
+  transform: scale(1.2) !important;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.7);
+  z-index: 10;
+}
+.sat-wa { background: #25d366; color: #000; }
+.sat-gm { background: #ea4335; color: #fff; }
+.sat-cal { background: #4285f4; color: #fff; }
+.sat-no { background: #fff; color: #000; }
+
+.supervisor-info {
+  z-index: 2;
+  max-width: 550px;
+  text-align: center;
+}
+.supervisor-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: #d0e0ff;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+.supervisor-desc {
+  font-size: 1rem;
+  color: #b0c8e0;
+  margin-bottom: 1.5rem;
+  line-height: 1.7;
+}
+.supervisor-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.4rem 1rem;
+  border-radius: var(--radius-full);
+  border: 1px solid #2a4a6a;
+  color: #8ab4f8;
+  background: rgba(66,133,244,0.08);
+  letter-spacing: 1px;
+}
+.supervisor-status .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+}
+
+/* Features Grid */
+.supervisor-features {
+  padding: 4rem 3rem;
+  background: var(--bg-deep);
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.feature-card {
+  padding: 2rem;
+  transition: all 0.3s;
+}
+.feature-card:hover {
+  border-color: rgba(0,230,118,0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+}
+.feature-icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+.feature-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+.feature-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+  .supervisor-connections { width: 350px; height: 350px; }
+  .satellite-icon { width: 36px; height: 36px; font-size: 0.6rem; border-radius: 10px; margin: -18px 0 0 -18px; }
+  .supervisor-title { font-size: 2rem; }
+}

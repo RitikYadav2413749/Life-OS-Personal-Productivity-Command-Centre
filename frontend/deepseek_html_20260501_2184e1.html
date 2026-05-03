@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIFEOS — Your AI Chief of Staff</title>
+    <style>
+        :root {
+            --bg-deep: #05080f;
+            --bg-primary: #0a0f1a;
+            --bg-card: #111827;
+            --text-primary: #e8eaed;
+            --text-secondary: #9aa0b4;
+            --accent-green: #00e676;
+            --accent-green-glow: #00e67666;
+            --accent-blue: #4285f4;
+            --accent-red: #ea4335;
+            --accent-dark: #1a1d28;
+            --whatsapp-green: #25d366;
+            --gmail-red: #ea4335;
+            --calendar-blue: #4285f4;
+            --notion-black: #000000;
+            --border-subtle: #1e2a3a;
+            --glow-strong: 0 0 60px;
+            --font-mono: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Courier New', monospace;
+            --font-sans: 'Inter', 'SF Pro Display', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            scrollbar-color: #1e2a3a #05080f;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #05080f;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e2a3a;
+            border-radius: 3px;
+        }
+
+        body {
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            overflow-x: hidden;
+            cursor: crosshair;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ========== SCANLINES OVERLAY ========== */
+        .scanlines-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            background: repeating-linear-gradient(0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 0, 0, 0.03) 2px,
+                    rgba(0, 0, 0, 0.03) 4px);
+        }
+
+        /* ========== NAVIGATION ========== */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.2rem 2.5rem;
+            background: rgba(10, 15, 26, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-subtle);
+            transition: all 0.3s ease;
+        }
+        .nav.scrolled {
+            padding: 0.8rem 2.5rem;
+            background: rgba(10, 15, 26, 0.9);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+        }
+        .nav-logo {
+            font-family: var(--font-mono);
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .nav-logo .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            box-shadow: 0 0 12px var(--accent-green-glow);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                box-shadow: 0 0 8px var(--accent-green-glow);
+            }
+            50% {
+                box-shadow: 0 0 24px var(--accent-green), 0 0 40px var(--accent-green-glow);
+            }
+        }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            list-style: none;
+        }
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            transition: color 0.3s;
+            position: relative;
+        }
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--accent-green);
+            transition: width 0.3s ease;
+        }
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        .btn-nav {
+            padding: 0.6rem 1.4rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: var(--font-sans);
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+        }
+        .btn-outline:hover {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 20px rgba(0, 230, 118, 0.2);
+        }
+        .btn-filled {
+            background: var(--accent-green);
+            border: 1px solid var(--accent-green);
+            color: #000;
+        }
+        .btn-filled:hover {
+            box-shadow: 0 0 30px rgba(0, 230, 118, 0.5);
+            transform: translateY(-1px);
+        }
+
+        /* ========== SECTIONS ========== */
+        .section {
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            perspective: 1200px;
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        /* ========== HERO SECTION ========== */
+        .hero-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 6rem 2rem 4rem;
+            background: radial-gradient(ellipse at center, #0d1525 0%, #05080f 70%);
+        }
+        .hero-badge {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            letter-spacing: 4px;
+            color: var(--accent-green);
+            border: 1px solid #1a3a2a;
+            padding: 0.5rem 1.2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease;
+        }
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.8s ease 0.1s both;
+        }
+        .hero-title .highlight {
+            background: linear-gradient(135deg, #00e676, #00c853, #69f0ae);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-subtitle {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 2.5rem;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: fadeInUp 0.8s ease 0.3s both;
+        }
+        .hero-terminal {
+            margin-top: 3rem;
+            background: #0a0f16;
+            border: 1px solid #1a2a3a;
+            border-radius: 10px;
+            padding: 1.2rem 1.8rem;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: #7a8a9a;
+            max-width: 500px;
+            width: 100%;
+            animation: fadeInUp 0.8s ease 0.4s both;
+            text-align: left;
+        }
+        .hero-terminal .prompt {
+            color: var(--accent-green);
+        }
+        .hero-terminal .cursor-blink {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background: var(--accent-green);
+            animation: blink 1s step-end infinite;
+            vertical-align: text-bottom;
+            margin-left: 2px;
+        }
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ========== AGENT SECTIONS ========== */
+        .agent-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4rem;
+            padding: 4rem 3rem;
+            flex-wrap: wrap;
+        }
+        .agent-info {
+            flex: 0 0 320px;
+            max-width: 380px;
+            z-index: 2;
+        }
+        .agent-label {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 0.6rem;
+            opacity: 0.7;
+        }
+        .agent-name {
+            font-size: 2.8rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .agent-desc {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+        }
+        .agent-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            border: 1px solid;
+            letter-spacing: 1px;
+        }
+        .status-online {
+            border-color: #1a4a2a;
+            color: #4caf84;
+            background: rgba(0, 230, 118, 0.06);
+        }
+        .status-online .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #4caf84;
+            box-shadow: 0 0 8px #4caf84;
+        }
+
+        /* ========== 3D CARD CONTAINER ========== */
+        .card-3d-wrapper {
+            flex: 0 0 420px;
+            height: 480px;
+            perspective: 1000px;
+            position: relative;
+            z-index: 2;
+        }
+        .card-3d {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.15s ease-out, box-shadow 0.3s ease;
+            border-radius: 20px;
+            cursor: pointer;
+            will-change: transform;
+        }
+        .card-3d-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backface-visibility: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        /* WhatsApp card */
+        .card-whatsapp .card-3d-inner {
+            background: linear-gradient(160deg, #1a2d1f 0%, #0f1a12 40%, #0a1f0e 100%);
+            border-color: rgba(37, 211, 102, 0.3);
+        }
+        /* Gmail card */
+        .card-gmail .card-3d-inner {
+            background: linear-gradient(160deg, #1f1a1a 0%, #1a1010 40%, #1f1515 100%);
+            border-color: rgba(234, 67, 53, 0.3);
+        }
+        /* Calendar card */
+        .card-calendar .card-3d-inner {
+            background: linear-gradient(160deg, #151a2d 0%, #101525 40%, #0f1a30 100%);
+            border-color: rgba(66, 133, 244, 0.3);
+        }
+        /* Notion card */
+        .card-notion .card-3d-inner {
+            background: linear-gradient(160deg, #1a1a1a 0%, #121212 40%, #1a1a1a 100%);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* ========== CARD CONTENT / IMAGES ========== */
+        .card-app-icon {
+            width: 90px;
+            height: 90px;
+            border-radius: 22px;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 900;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+        .icon-whatsapp {
+            background: #25d366;
+            color: #fff;
+        }
+        .icon-gmail {
+            background: #fff;
+            color: #ea4335;
+        }
+        .icon-calendar {
+            background: #4285f4;
+            color: #fff;
+        }
+        .icon-notion {
+            background: #fff;
+            color: #000;
+        }
+
+        .card-mock-interface {
+            width: 85%;
+            max-width: 340px;
+            border-radius: 12px;
+            padding: 1rem;
+            font-size: 0.8rem;
+            position: relative;
+            z-index: 1;
+        }
+        /* WhatsApp mock */
+        .mock-whatsapp {
+            background: #0b2d18;
+            border: 1px solid rgba(37, 211, 102, 0.25);
+        }
+        .mock-whatsapp .msg-bubble {
+            background: #1a4a2a;
+            padding: 0.6rem 0.9rem;
+            border-radius: 10px 10px 10px 2px;
+            margin: 0.4rem 0;
+            color: #c8e6c9;
+            font-size: 0.78rem;
+        }
+        .mock-whatsapp .msg-bubble.outgoing {
+            background: #25d366;
+            color: #000;
+            border-radius: 10px 10px 2px 10px;
+            margin-left: auto;
+            width: fit-content;
+            max-width: 75%;
+            font-weight: 600;
+        }
+        /* Gmail mock */
+        .mock-gmail {
+            background: #1a1010;
+            border: 1px solid rgba(234, 67, 53, 0.3);
+        }
+        .mock-gmail .email-row {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.75rem;
+            color: #c9a9a7;
+        }
+        .mock-gmail .email-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ea4335;
+            flex-shrink: 0;
+        }
+        /* Calendar mock */
+        .mock-calendar {
+            background: #0f1525;
+            border: 1px solid rgba(66, 133, 244, 0.3);
+            text-align: center;
+        }
+        .mock-calendar .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+            font-size: 0.7rem;
+            color: #b0c4de;
+        }
+        .mock-calendar .cal-grid .cal-day {
+            padding: 0.4rem;
+            border-radius: 4px;
+        }
+        .mock-calendar .cal-grid .cal-day.highlight {
+            background: #4285f4;
+            color: #fff;
+            font-weight: 700;
+            box-shadow: 0 0 10px rgba(66, 133, 244, 0.5);
+        }
+        /* Notion mock */
+        .mock-notion {
+            background: #111111;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .mock-notion .notion-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0;
+            font-size: 0.75rem;
+            color: #ccc;
+        }
+        .mock-notion .notion-check {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            border: 1px solid #555;
+            flex-shrink: 0;
+        }
+        .mock-notion .notion-check.done {
+            background: #fff;
+            border-color: #fff;
+            position: relative;
+        }
+        .mock-notion .notion-check.done::after {
+            content: '✓';
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            color: #000;
+            font-weight: 700;
+        }
+
+        .card-glow {
+            position: absolute;
+            inset: -2px;
+            border-radius: 22px;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            filter: blur(20px);
+        }
+        .card-3d:hover .card-glow {
+            opacity: 0.5;
+        }
+        .glow-whatsapp {
+            background: radial-gradient(ellipse, rgba(37, 211, 102, 0.4) 0%, transparent 70%);
+        }
+        .glow-gmail {
+            background: radial-gradient(ellipse, rgba(234, 67, 53, 0.4) 0%, transparent 70%);
+        }
+        .glow-calendar {
+            background: radial-gradient(ellipse, rgba(66, 133, 244, 0.4) 0%, transparent 70%);
+        }
+        .glow-notion {
+            background: radial-gradient(ellipse, rgba(200, 200, 200, 0.35) 0%, transparent 70%);
+        }
+
+        /* ========== PARALLAX LAYERS ========== */
+        .parallax-layer {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+            will-change: transform;
+            transition: transform 0.08s linear;
+        }
+        .parallax-orb {
+            width: 200px;
+            height: 200px;
+            filter: blur(60px);
+            opacity: 0.25;
+            z-index: 0;
+        }
+        .parallax-grid {
+            position: absolute;
+            inset: -20%;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 0;
+            pointer-events: none;
+            will-change: transform;
+            transition: transform 0.08s linear;
+        }
+        .parallax-particles {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            will-change: transform;
+            transition: transform 0.12s linear;
+        }
+
+        /* ========== SUPERVISOR SECTION ========== */
+        .supervisor-section {
+            background: radial-gradient(ellipse at center, #0d1528 0%, #05080f 70%);
+            text-align: center;
+            flex-direction: column;
+            gap: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .supervisor-orb {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #1a3a5a, #0a1525);
+            border: 2px solid rgba(100, 180, 255, 0.4);
+            box-shadow:
+                0 0 80px rgba(66, 133, 244, 0.3),
+                0 0 160px rgba(66, 133, 244, 0.15),
+                inset 0 0 40px rgba(100, 180, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            animation: orb-float 5s ease-in-out infinite;
+        }
+        @keyframes orb-float {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-18px);
+            }
+        }
+        .supervisor-orb-inner {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            color: #8ab4f8;
+            text-align: center;
+        }
+        .supervisor-connections {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 600px;
+            height: 600px;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            pointer-events: none;
+        }
+        .connection-line {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 2px;
+            height: 0;
+            background: linear-gradient(to bottom, rgba(100, 180, 255, 0.6), transparent);
+            transform-origin: top center;
+            opacity: 0.5;
+            animation: conn-pulse 3s ease-in-out infinite;
+        }
+        @keyframes conn-pulse {
+            0%,
+            100% {
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+        .satellite-icon {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.7rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            animation: satellite-orbit 8s ease-in-out infinite;
+            pointer-events: auto;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .satellite-icon:hover {
+            transform: scale(1.2) !important;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
+            z-index: 10;
+        }
+        .sat-wa {
+            background: #25d366;
+            color: #000;
+        }
+        .sat-gm {
+            background: #ea4335;
+            color: #fff;
+        }
+        .sat-cal {
+            background: #4285f4;
+            color: #fff;
+        }
+        .sat-no {
+            background: #fff;
+            color: #000;
+        }
+        @keyframes satellite-orbit {
+            0%,
+            100% {
+                transform: translate(var(--orbit-x), var(--orbit-y)) rotate(0deg);
+            }
+            25% {
+                transform: translate(calc(var(--orbit-x) * 0.7), calc(var(--orbit-y) * 1.2)) rotate(5deg);
+            }
+            50% {
+                transform: translate(calc(var(--orbit-x) * -0.5), calc(var(--orbit-y) * 0.6)) rotate(-3deg);
+            }
+            75% {
+                transform: translate(calc(var(--orbit-x) * -0.8), calc(var(--orbit-y) * -0.9)) rotate(2deg);
+            }
+        }
+        .supervisor-info {
+            z-index: 2;
+            max-width: 550px;
+            text-align: center;
+        }
+        .supervisor-info .agent-name {
+            font-size: 2.5rem;
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 900px) {
+            .agent-section {
+                flex-direction: column;
+                gap: 2rem;
+                padding: 3rem 1.5rem;
+            }
+            .card-3d-wrapper {
+                flex: 0 0 300px;
+                height: 350px;
+                width: 100%;
+                max-width: 380px;
+            }
+            .agent-info {
+                flex: 0 0 auto;
+                max-width: 100%;
+                text-align: center;
+            }
+            .agent-name {
+                font-size: 2rem;
+            }
+            .nav-links {
+                gap: 1rem;
+            }
+            .nav-links a {
+                font-size: 0.75rem;
+            }
+            .hero-title {
+                font-size: 2rem;
+            }
+            .supervisor-connections {
+                width: 350px;
+                height: 350px;
+            }
+            .satellite-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 0.6rem;
+                border-radius: 10px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .nav {
+                padding: 0.8rem 1rem;
+            }
+            .nav-links {
+                display: none;
+            }
+            .card-3d-wrapper {
+                flex: 0 0 240px;
+                height: 280px;
+                max-width: 300px;
+            }
+            .agent-name {
+                font-size: 1.6rem;
+            }
+            .hero-subtitle {
+                font-size: 0.9rem;
+            }
+            .hero-terminal {
+                font-size: 0.7rem;
+                padding: 0.8rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Scanlines overlay -->
+    <div class="scanlines-overlay"></div>
+
+    <!-- ========== NAVIGATION ========== -->
+    <nav class="nav" id="navbar">
+        <a href="#" class="nav-logo">
+            <span class="pulse-dot"></span> LIFEOS
+        </a>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#whatsapp">Agents</a></li>
+            <li><a href="#supervisor">Supervisor</a></li>
+            <li><a href="#">Pricing</a></li>
+            <li><a href="#">Solutions</a></li>
+            <li><a href="#">Resources</a></li>
+        </ul>
+        <div style="display:flex;gap:0.6rem;align-items:center;">
+            <a href="#" class="btn-nav btn-outline">Login</a>
+            <a href="#" class="btn-nav btn-filled">Get Started</a>
+        </div>
+    </nav>
+
+    <!-- ========== HERO SECTION ========== -->
+    <section class="section hero-section" id="home">
+        <div class="parallax-grid" data-parallax-depth="0.03"></div>
+        <div class="parallax-layer parallax-orb"
+        style="top:15%;left:10%;background:rgba(0,230,118,0.25);width:280px;height:280px;"
+        data-parallax-depth="0.06"></div>
+        <div class="parallax-layer parallax-orb"
+        style="bottom:10%;right:8%;background:rgba(66,133,244,0.2);width:240px;height:240px;"
+        data-parallax-depth="0.05"></div>
+        <div class="parallax-particles" id="hero-particles"></div>
+
+        <div class="hero-badge">System Online v2.4</div>
+        <h1 class="hero-title">Your AI<br><span class="highlight">Chief of Staff</span></h1>
+        <p class="hero-subtitle">
+            Command your digital ecosystem from a single, high-fidelity interface.
+            Seamlessly integrate your tools and let autonomous agents execute complex
+            workflows while you focus on strategy.
+        </p>
+        <div class="hero-buttons">
+            <a href="#whatsapp" class="btn-nav btn-filled" style="padding:0.8rem 2rem;font-size:1rem;">Initialize Command</a>
+            <a href="#supervisor" class="btn-nav btn-outline" style="padding:0.8rem 2rem;font-size:1rem;">Watch Simulation</a>
+        </div>
+        <div class="hero-terminal">
+            <span class="prompt">➜ ~ </span> Reschedule my afternoon meetings and draft a brief for the Alpha project...
+            <span class="cursor-blink"></span>
+        </div>
+    </section>
+
+    <!-- ========== WHATSAPP AGENT SECTION ========== -->
+    <section class="section agent-section" id="whatsapp" data-section-color="green">
+        <div class="parallax-grid" data-parallax-depth="0.04"></div>
+        <div class="parallax-layer parallax-orb"
+        style="top:20%;right:15%;background:rgba(37,211,102,0.3);width:300px;height:300px;"
+        data-parallax-depth="0.07"></div>
+        <div class="parallax-layer parallax-orb"
+        style="bottom:15%;left:10%;background:rgba(37,211,102,0.15);width:200px;height:200px;"
+        data-parallax-depth="0.04"></div>
+
+        <div class="agent-info">
+            <div class="agent-label" style="color:#25d366;">Communication Agent</div>
+            <div class="agent-name" style="color:#25d366;">WhatsApp<br>Agent</div>
+            <p class="agent-desc">
+                Instant messaging orchestration. Auto-reply, message summarization,
+                and intelligent routing — all handled autonomously by your WhatsApp agent.
+            </p>
+            <div class="agent-status status-online">
+                <span class="dot"></span> Agent Active
+            </div>
+        </div>
+
+        <div class="card-3d-wrapper">
+            <div class="card-3d card-whatsapp" id="card-whatsapp">
+                <div class="card-glow glow-whatsapp"></div>
+                <div class="card-3d-inner">
+                    <div class="card-app-icon icon-whatsapp">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="white">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                        </svg>
+                    </div>
+                    <div class="card-mock-interface mock-whatsapp">
+                        <div class="msg-bubble">Hey! Can you reschedule today's standup?</div>
+                        <div class="msg-bubble">Sure, moved to 4 PM ✓</div>
+                        <div class="msg-bubble outgoing">Confirmed. I'll notify the team.</div>
+                        <div class="msg-bubble" style="opacity:0.6;">📎 Project_Alpha_Brief.pdf</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== GMAIL AGENT SECTION ========== -->
+    <section class="section agent-section" id="gmail" data-section-color="red">
+        <div class="parallax-grid" data-parallax-depth="0.04"></div>
+        <div class="parallax-layer parallax-orb"
+        style="top:10%;left:20%;background:rgba(234,67,53,0.25);width:280px;height:280px;"
+        data-parallax-depth="0.06"></div>
+        <div class="parallax-layer parallax-orb"
+        style="bottom:20%;right:10%;background:rgba(234,67,53,0.15);width:220px;height:220px;"
+        data-parallax-depth="0.05"></div>
+
+        <div class="card-3d-wrapper" style="order:-1;">
+            <div class="card-3d card-gmail" id="card-gmail">
+                <div class="card-glow glow-gmail"></div>
+                <div class="card-3d-inner">
+                    <div class="card-app-icon icon-gmail">
+                        <svg width="44" height="44" viewBox="0 0 24 24" fill="#ea4335">
+                            <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 010 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/>
+                        </svg>
+                    </div>
+                    <div class="card-mock-interface mock-gmail">
+                        <div class="email-row"><span class="email-dot"></span> <strong>Q4 Review</strong> — Meeting notes attached</div>
+                        <div class="email-row"><span class="email-dot"></span> <strong>Client Update</strong> — Proposal ready for...</div>
+                        <div class="email-row"><span style="color:#888;">✓</span> <strong>Team Sync</strong> — Summary: All tasks on...</div>
+                        <div class="email-row"><span style="color:#888;">✓</span> <strong>Invoice</strong> — Processed automatically</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="agent-info">
+            <div class="agent-label" style="color:#ea4335;">Email Agent</div>
+            <div class="agent-name" style="color:#ea4335;">Gmail<br>Agent</div>
+            <p class="agent-desc">
+                Intelligent email triage. Priority inbox sorting, automated drafting,
+                and follow-up scheduling — your inbox, mastered by AI.
+            </p>
+            <div class="agent-status status-online">
+                <span class="dot"></span> Agent Active
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== GOOGLE CALENDAR AGENT SECTION ========== -->
+    <section class="section agent-section" id="calendar" data-section-color="blue">
+        <div class="parallax-grid" data-parallax-depth="0.04"></div>
+        <div class="parallax-layer parallax-orb"
+        style="top:25%;right:12%;background:rgba(66,133,244,0.28);width:300px;height:300px;"
+        data-parallax-depth="0.07"></div>
+        <div class="parallax-layer parallax-orb"
+        style="bottom:10%;left:18%;background:rgba(66,133,244,0.14);width:200px;height:200px;"
+        data-parallax-depth="0.04"></div>
+
+        <div class="agent-info">
+            <div class="agent-label" style="color:#4285f4;">Scheduling Agent</div>
+            <div class="agent-name" style="color:#4285f4;">Google<br>Calendar Agent</div>
+            <p class="agent-desc">
+                Dynamic schedule optimization. Conflict resolution, smart rescheduling,
+                and meeting prep — your calendar, always in sync.
+            </p>
+            <div class="agent-status status-online">
+                <span class="dot"></span> Agent Active
+            </div>
+        </div>
+
+        <div class="card-3d-wrapper">
+            <div class="card-3d card-calendar" id="card-calendar">
+                <div class="card-glow glow-calendar"></div>
+                <div class="card-3d-inner">
+                    <div class="card-app-icon icon-calendar">
+                        <svg width="44" height="44" viewBox="0 0 24 24" fill="white">
+                            <rect x="2" y="4" width="20" height="18" rx="2" fill="white" opacity="0.9"/>
+                            <rect x="2" y="4" width="20" height="5" rx="2" fill="#4285f4"/>
+                            <text x="12" y="9" text-anchor="middle" font-size="5" font-weight="700" fill="white" font-family="sans-serif">MAY 2026</text>
+                            <circle cx="7" cy="14.5" r="1.5" fill="#4285f4"/>
+                            <circle cx="12" cy="14.5" r="1.5" fill="#4285f4"/>
+                            <circle cx="17" cy="14.5" r="1.5" fill="#4285f4"/>
+                            <circle cx="7" cy="18.5" r="1.5" fill="#4285f4" opacity="0.5"/>
+                            <circle cx="12" cy="18.5" r="1.5" fill="#e8a838"/>
+                            <circle cx="17" cy="18.5" r="1.5" fill="#4285f4" opacity="0.5"/>
+                        </svg>
+                    </div>
+                    <div class="card-mock-interface mock-calendar">
+                        <div class="cal-grid">
+                            <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+                            <span class="cal-day">28</span><span class="cal-day">29</span><span class="cal-day">30</span>
+                            <span class="cal-day highlight">1</span><span class="cal-day">2</span><span class="cal-day">3</span><span class="cal-day">4</span>
+                            <span class="cal-day">5</span><span class="cal-day">6</span><span class="cal-day">7</span>
+                            <span class="cal-day">8</span><span class="cal-day">9</span><span class="cal-day">10</span><span class="cal-day">11</span>
+                        </div>
+                        <p style="margin-top:0.6rem;font-size:0.7rem;color:#b0c4de;">📅 <strong>3 events</strong> rescheduled today</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== NOTION AGENT SECTION ========== -->
+    <section class="section agent-section" id="notion" data-section-color="dark">
+        <div class="parallax-grid" data-parallax-depth="0.04"></div>
+        <div class="parallax-layer parallax-orb"
+        style="top:15%;left:15%;background:rgba(200,200,200,0.2);width:260px;height:260px;"
+        data-parallax-depth="0.06"></div>
+        <div class="parallax-layer parallax-orb"
+        style="bottom:20%;right:18%;background:rgba(180,180,180,0.12);width:200px;height:200px;"
+        data-parallax-depth="0.05"></div>
+
+        <div class="card-3d-wrapper" style="order:-1;">
+            <div class="card-3d card-notion" id="card-notion">
+                <div class="card-glow glow-notion"></div>
+                <div class="card-3d-inner">
+                    <div class="card-app-icon icon-notion">
+                        <svg width="44" height="44" viewBox="0 0 24 24" fill="black">
+                            <rect width="24" height="24" rx="4" fill="white"/>
+                            <text x="12" y="17" text-anchor="middle" font-size="16" font-weight="900" fill="black" font-family="sans-serif">N</text>
+                        </svg>
+                    </div>
+                    <div class="card-mock-interface mock-notion">
+                        <div class="notion-row"><span class="notion-check done"></span> Alpha Project Brief</div>
+                        <div class="notion-row"><span class="notion-check done"></span> Q2 Roadmap Draft</div>
+                        <div class="notion-row"><span class="notion-check"></span> Meeting Notes — Review</div>
+                        <div class="notion-row"><span class="notion-check"></span> Team Onboarding Doc</div>
+                        <div class="notion-row" style="color:#888;">+ New page from voice note...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="agent-info">
+            <div class="agent-label" style="color:#ccc;">Knowledge Agent</div>
+            <div class="agent-name" style="color:#fff;">Notion<br>Agent</div>
+            <p class="agent-desc">
+                Your second brain, automated. Document generation, knowledge base
+                updates, and cross-referencing — all orchestrated seamlessly.
+            </p>
+            <div class="agent-status status-online">
+                <span class="dot"></span> Agent Active
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== SUPERVISOR AGENT SECTION ========== -->
+    <section class="section agent-section supervisor-section" id="supervisor" data-section-color="blue">
+        <div class="parallax-grid" data-parallax-depth="0.03"></div>
+        <div class="parallax-layer parallax-orb"
+        style="top:50%;left:50%;background:rgba(100,180,255,0.2);width:400px;height:400px;transform:translate(-50%,-50%);"
+        data-parallax-depth="0.02"></div>
+
+        <div class="supervisor-connections" id="supervisor-connections">
+            <!-- Satellite icons positioned around the orb -->
+        </div>
+
+        <div class="supervisor-orb" id="supervisor-orb-el">
+            <div class="supervisor-orb-inner">
+                <span style="font-size:1.5rem;display:block;">⬡</span>
+                SUPERVISOR<br>ACTIVE
+            </div>
+        </div>
+
+        <div class="supervisor-info">
+            <div class="agent-label" style="color:#8ab4f8;">Orchestration Layer</div>
+            <div class="agent-name" style="color:#d0e0ff;">Supervisor<br>Agent</div>
+            <p class="agent-desc" style="color:#b0c8e0;">
+                The central intelligence that orchestrates all agents. It delegates tasks
+                across WhatsApp, Gmail, Google Calendar, and Notion — ensuring seamless
+                coordination, conflict resolution, and priority management across your
+                entire digital ecosystem.
+            </p>
+            <div class="agent-status status-online" style="border-color:#2a4a6a;color:#8ab4f8;background:rgba(66,133,244,0.08);">
+                <span class="dot" style="background:#8ab4f8;box-shadow:0 0 8px #8ab4f8;"></span> Orchestrating 4 Agents
+            </div>
+        </div>
+    </section>
+
+    <script>
+        (function() {
+            // ============ DOM ELEMENTS ============
+            const navbar = document.getElementById('navbar');
+            const allSections = document.querySelectorAll('.section');
+            const allCards = document.querySelectorAll('.card-3d');
+            const parallaxGrids = document.querySelectorAll('.parallax-grid');
+            const parallaxOrbs = document.querySelectorAll('.parallax-orb');
+            const supervisorOrb = document.getElementById('supervisor-orb-el');
+            const supervisorConnections = document.getElementById('supervisor-connections');
+
+            // ============ STATE ============
+            let mouseX = window.innerWidth / 2;
+            let mouseY = window.innerHeight / 2;
+            let targetMouseX = mouseX;
+            let targetMouseY = mouseY;
+            let scrollY = window.scrollY;
+            let targetScrollY = scrollY;
+
+            // ============ CREATE HERO PARTICLES ============
+            const heroParticles = document.getElementById('hero-particles');
+            if (heroParticles) {
+                for (let i = 0; i < 60; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('particle');
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.top = Math.random() * 100 + '%';
+                    particle.style.width = (1 + Math.random() * 3) + 'px';
+                    particle.style.height = particle.style.width;
+                    particle.style.opacity = (0.15 + Math.random() * 0.5);
+                    particle.style.animationDelay = Math.random() * 5 + 's';
+                    particle.dataset.depth = (0.02 + Math.random() * 0.08).toFixed(3);
+                    heroParticles.appendChild(particle);
+                }
+            }
+
+            // ============ CREATE SUPERVISOR SATELLITES ============
+            const satelliteData = [
+                { cls: 'sat-wa', label: 'WA', orbitX: '120px', orbitY: '-100px', delay: '0s' },
+                { cls: 'sat-gm', label: 'GM', orbitX: '-130px', orbitY: '-60px', delay: '2s' },
+                { cls: 'sat-cal', label: 'CAL', orbitX: '100px', orbitY: '110px', delay: '4s' },
+                { cls: 'sat-no', label: 'NO', orbitX: '-110px', orbitY: '90px', delay: '6s' },
+            ];
+
+            if (supervisorConnections) {
+                satelliteData.forEach((sat, i) => {
+                    // Create connection line
+                    const line = document.createElement('div');
+                    line.classList.add('connection-line');
+                    const angle = (i / 4) * 360;
+                    line.style.transform = `rotate(${angle}deg)`;
+                    line.style.height = '140px';
+                    line.style.top = '50%';
+                    line.style.left = '50%';
+                    line.style.transformOrigin = 'top center';
+                    line.style.transform = `rotate(${angle}deg) translateY(-70px)`;
+                    line.style.animationDelay = sat.delay;
+                    supervisorConnections.appendChild(line);
+
+                    // Create satellite icon
+                    const icon = document.createElement('div');
+                    icon.classList.add('satellite-icon', sat.cls);
+                    icon.textContent = sat.label;
+                    icon.style.setProperty('--orbit-x', sat.orbitX);
+                    icon.style.setProperty('--orbit-y', sat.orbitY);
+                    icon.style.animationDelay = sat.delay;
+                    icon.style.position = 'absolute';
+                    icon.style.top = '50%';
+                    icon.style.left = '50%';
+                    icon.style.marginLeft = '-25px';
+                    icon.style.marginTop = '-25px';
+                    supervisorConnections.appendChild(icon);
+                });
+            }
+
+            // ============ MOUSE TRACKING ============
+            document.addEventListener('mousemove', (e) => {
+                targetMouseX = e.clientX;
+                targetMouseY = e.clientY;
+            });
+
+            // ============ SCROLL TRACKING ============
+            window.addEventListener('scroll', () => {
+                targetScrollY = window.scrollY;
+            }, { passive: true });
+
+            // ============ SMOOTH MOUSE & SCROLL INTERPOLATION ============
+            function interpolateValues() {
+                mouseX += (targetMouseX - mouseX) * 0.08;
+                mouseY += (targetMouseY - mouseY) * 0.08;
+                scrollY += (targetScrollY - scrollY) * 0.06;
+            }
+
+            // ============ UPDATE ALL CARDS (3D ROTATION) ============
+            function updateCards() {
+                allCards.forEach(card => {
+                    const rect = card.getBoundingClientRect();
+                    const cardCenterX = rect.left + rect.width / 2;
+                    const cardCenterY = rect.top + rect.height / 2;
+
+                    // Mouse offset from card center
+                    const offsetX = mouseX - cardCenterX;
+                    const offsetY = mouseY - cardCenterY;
+
+                    // Normalize to [-1, 1] range based on card dimensions
+                    const normalizedX = offsetX / (rect.width / 2);
+                    const normalizedY = offsetY / (rect.height / 2);
+
+                    // Clamp
+                    const clampedX = Math.max(-1, Math.min(1, normalizedX));
+                    const clampedY = Math.max(-1, Math.min(1, normalizedY));
+
+                    // Rotation angles (max ~18 degrees)
+                    const rotateY = clampedX * 18;
+                    const rotateX = -clampedY * 18;
+
+                    // Also slight Z translation for depth effect
+                    const translateZ = Math.abs(clampedX) + Math.abs(clampedY) > 0.3 ? 15 : 0;
+
+                    card.style.transform =
+                        `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(${translateZ}px)`;
+
+                    // Dynamic shadow based on rotation
+                    const shadowX = -clampedX * 20;
+                    const shadowY = clampedY * 20;
+                    const shadowBlur = 40 + Math.abs(clampedX + clampedY) * 20;
+                    card.style.boxShadow =
+                        `${shadowX}px ${shadowY}px ${shadowBlur}px rgba(0,0,0,0.5)`;
+                });
+            }
+
+            // ============ UPDATE PARALLAX LAYERS ============
+            function updateParallax() {
+                const viewportHeight = window.innerHeight;
+                const viewportWidth = window.innerWidth;
+
+                // Update grid layers
+                parallaxGrids.forEach(grid => {
+                    const depth = parseFloat(grid.dataset.parallaxDepth) || 0.04;
+                    const offsetX = (mouseX - viewportWidth / 2) * depth;
+                    const offsetY = (mouseY - viewportHeight / 2) * depth + scrollY * depth * 0.5;
+                    grid.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+                });
+
+                // Update orb layers
+                parallaxOrbs.forEach(orb => {
+                    const depth = parseFloat(orb.dataset.parallaxDepth) || 0.05;
+                    const offsetX = (mouseX - viewportWidth / 2) * depth;
+                    const offsetY = (mouseY - viewportHeight / 2) * depth + scrollY * depth * 0.6;
+                    orb.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+                });
+
+                // Update hero particles
+                if (heroParticles) {
+                    const particles = heroParticles.querySelectorAll('.particle');
+                    particles.forEach(p => {
+                        const depth = parseFloat(p.dataset.depth) || 0.04;
+                        const offsetX = (mouseX - viewportWidth / 2) * depth;
+                        const offsetY = (mouseY - viewportHeight / 2) * depth + scrollY * depth * 0.3;
+                        p.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+                    });
+                }
+            }
+
+            // ============ UPDATE SUPERVISOR ORB ============
+            function updateSupervisorOrb() {
+                if (supervisorOrb) {
+                    const rect = supervisorOrb.getBoundingClientRect();
+                    const orbCenterX = rect.left + rect.width / 2;
+                    const orbCenterY = rect.top + rect.height / 2;
+                    const offsetX = mouseX - orbCenterX;
+                    const offsetY = mouseY - orbCenterY;
+                    const dist = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+                    const maxDist = 400;
+                    const influence = Math.max(0, 1 - dist / maxDist);
+                    const shiftX = offsetX * influence * 0.06;
+                    const shiftY = offsetY * influence * 0.06;
+                    supervisorOrb.style.transform = `translate(${shiftX}px, ${shiftY}px)`;
+                    // Update glow intensity based on proximity
+                    const glowIntensity = 0.3 + influence * 0.7;
+                    supervisorOrb.style.boxShadow =
+                        `0 0 ${80 * glowIntensity}px rgba(66,133,244,${0.3 * glowIntensity}), 0 0 ${160 * glowIntensity}px rgba(66,133,244,${0.15 * glowIntensity}), inset 0 0 40px rgba(100,180,255,${0.1 * glowIntensity})`;
+                }
+            }
+
+            // ============ NAVBAR SCROLL EFFECT ============
+            function updateNavbar() {
+                if (scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            }
+
+            // ============ MAIN ANIMATION LOOP ============
+            function animate() {
+                interpolateValues();
+                updateCards();
+                updateParallax();
+                updateSupervisorOrb();
+                updateNavbar();
+                requestAnimationFrame(animate);
+            }
+
+            // ============ INITIALIZE ============
+            // Set initial scroll position
+            scrollY = window.scrollY;
+            targetScrollY = scrollY;
+
+            // Start animation loop
+            requestAnimationFrame(animate);
+
+            // ============ SMOOTH SCROLL FOR NAV LINKS ============
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    const targetEl = document.querySelector(targetId);
+                    if (targetEl) {
+                        e.preventDefault();
+                        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+
+            // ============ HANDLE RESIZE ============
+            window.addEventListener('resize', () => {
+                targetMouseX = window.innerWidth / 2;
+                targetMouseY = window.innerHeight / 2;
+            });
+
+            console.log('%c🚀 LIFEOS %cSystem Online v2.4 %c| %cSupervisor Agent Ready',
+                'color:#00e676;font-weight:bold;font-size:1.2em;',
+                'color:#8ab4f8;',
+                'color:#aaa;',
+                'color:#fff;');
+            console.log('%cAgents: %cWhatsApp %c| %cGmail %c| %cGoogle Calendar %c| %cNotion',
+                'color:#aaa;',
+                'color:#25d366;', 'color:#aaa;',
+                'color:#ea4335;', 'color:#aaa;',
+                'color:#4285f4;', 'color:#aaa;',
+                'color:#ccc;');
+            console.log('%cMove your cursor over the cards to experience 3D rotation ✨',
+                'color:#aaa;font-style:italic;');
+        })();
+    </script>
+</body>
+</html>

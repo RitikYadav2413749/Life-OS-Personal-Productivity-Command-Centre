@@ -1,0 +1,122 @@
+/* Agent Status Panel Styles */
+
+.agent-status-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.agent-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.agent-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.agent-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.agent-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.agent-card-name {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.agent-card-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+}
+
+.agent-card-status.status-running {
+  color: var(--color-primary);
+}
+
+.agent-card-status.status-success {
+  color: var(--color-calendar);
+}
+
+.agent-card-status.status-error {
+  color: var(--color-notify);
+}
+
+.agent-card-duration {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.agent-card-steps {
+  margin-top: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.agent-step {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: var(--font-xs);
+  color: var(--text-secondary);
+}
+
+.step-bullet {
+  color: var(--agent-color, var(--color-primary));
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.step-text {
+  word-break: break-word;
+}
+
+.agent-card.done {
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.agent-card.errored {
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.agent-card-pulse {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+}
+
+.pulse-ring {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--agent-color, var(--color-primary));
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+@media (max-width: 640px) {
+  .agent-grid {
+    grid-template-columns: 1fr;
+  }
+}
